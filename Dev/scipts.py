@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Created on Mon Feb 15 17:46:18 2021
 
@@ -14,15 +13,20 @@ import telegram
 from telegram import Update
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
 
+global chat_id
+global token
+global path
+
 
 def Start():
     global On
     global bot
     global chat_id
+    global token
     On = False
-    bot = telegram.Bot(token="1669054885:AAFrbVf_dDioCB0EWGXJKW-SzeTM1RrAoEo")
-    chat_id = "@storageH"
-    bot.send_photo(chat_id=chat_id, photo=open('LastMadeShot.png', 'rb'))
+    #bot = telegram.Bot(token="1669054885:AAFrbVf_dDioCB0EWGXJKW-SzeTM1RrAoEo")
+    #chat_id = "@storageH"
+    #bot.send_photo(chat_id=chat_id, photo=open('LastMadeShot.png', 'rb'))
 
 
 def shot():
@@ -94,19 +98,20 @@ def scan():
     sec = 1
     print("scanning")
     global On
+    global path
     prev, f = Cut()
     while On:
         sec = sec + 1
         img, d = Cut()
         if abs(d - f) > 2000:
             print("It was done.")
-            picpath = "R/Shot" + str(sec) + ".png"
+            picpath = path + "\Shot" + str(sec) + ".png"
             cv2.imwrite(picpath, prev)
             bot.send_photo(chat_id=chat_id, photo=open(picpath, 'rb'))
         else:
             print("d-f=", (d - f))
-        print(d, "t")
-        print("still d-f=", (d - f))
+        print(edt.get())
+
         time.sleep(1)
         prev, f = img, d
 
@@ -116,11 +121,30 @@ def turn():
     if On:
         On = False
         print("Stopped")
+
     else:
+        parse()
         On = True
         t = threading.Thread(target=scan)
         t.start()
         print("Started")
+
+
+def parse():
+    global path
+    global token
+    global chat_id
+    global bot
+    path = edt.get()
+    tokenfile = open("token.txt", 'r')
+    token = tokenfile.read()
+    tokenfile.close()
+
+    chatfile = open('id.txt', 'r')
+    chat_id = chatfile.read()
+    chatfile.close()
+    bot = telegram.Bot(token=token)
+    print(path," ",token," ",chat_id)
 
 
 root = Tk()
